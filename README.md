@@ -1,21 +1,23 @@
-# Mårtens Brokvagt – designversion 2.3
+# Den Nationale Brokkommission – 3.0
 
-En mobilvenlig webapp med Mårten som maskot, 31 kildebelagte historiske brok-facts, kvittering til madklubben og status på lægens behandlingsplan.
+En satirisk webapp fra madklubben, målrettet Jonas. Kommissionsformand Mårten leverer 31 daglige bureaukratiske henvendelser og 31 kildebelagte historiske brok-facts.
 
-## Installation via GitHub Pages
+## Funktioner
+- Kommandocentral med sagsnummer JONAS-001 og lokal sagsalder. Efter 7 og 14 dage eskalerer den bureaukratiske satire – ikke den medicinske risikovurdering.
+- Historiske efterretninger med links til kilder.
+- Daglig modtagelseskvittering, frivillig deling til madklubben og bevarelse af tidligere kvitteringer.
+- Sagsbehandling: Kontaktet lægen, operationsdato registreret eller afventning aftalt med lægen.
+- Satirisk afslutningsbevis, der kan udskrives eller gemmes som PDF. Det er ikke en lægeerklæring.
+- Installerbar og offlinevenlig webapp.
 
-1. Upload alle filer og hele `assets`-mappen til roden af det offentlige repository `henrikeskelund-spec/maartens-brokvagt`.
-2. Gå til **Settings → Pages**, vælg **Deploy from a branch**, **main** og **/(root)**.
-3. Åbn `https://henrikeskelund-spec.github.io/maartens-brokvagt/` efter publicering.
+## Webadresse
+https://henrikeskelund-spec.github.io/maartens-brokvagt/
 
 ## Privatliv
-
-Appen bruger fornavnet Jonas som fast tiltale. Intet portrætfoto, efternavn eller individuelle helbredsoplysninger offentliggøres. Lægestatus og kvitteringer lagres lokalt i brugerens browser (`localStorage`). Intet sendes automatisk til madklubben; brugeren vælger selv afsendelse i delingsmenuen.
+Kun fornavnet Jonas er fast tiltale. Ingen portrætfoto, efternavn eller konkrete helbredsoplysninger offentliggøres. Sagsstatus, sagsalder og kvitteringer gemmes kun på den lokale enhed. Deling er frivillig og kræver brugerens handling.
 
 ## Begrænsninger
+Kommissionen er fiktiv og ikke en offentlig myndighed. Appen kan ikke vurdere personlig risiko. Ikke alle brok skal opereres; lægens vurdering er afgørende. Søg akut lægehjælp ved alarmsignaler. En ny fact vises ved åbning hver dag; baggrundsnotifikationer kræver særskilt pushløsning eller native app.
 
-Der er 31 forskellige facts, der roterer med månedens dato. Appen skifter fact ved åbning, men **sender ikke daglige pushnotifikationer i baggrunden**. Dette kræver en native app eller en pushserver. Ved stærke smerter eller andre alarmsignaler skal brugeren søge lægehjælp. Ikke alle brok kræver operation; lægens vurdering er afgørende.
-
-## Udvikling
-
-Statiske HTML/CSS/JavaScript-filer, webmanifest og service worker. Ingen eksterne biblioteker eller backend. Version 2.3 tilpasset det godkendte visuelle design med fanerne Hjem, Historie, Status og Mere.
+## Teknik
+Statiske HTML/CSS/JavaScript-filer uden backend eller eksterne biblioteker. GitHub Pages, webmanifest og service worker. Version 3.0 bevarer den tidligere localStorage-nøgle.
