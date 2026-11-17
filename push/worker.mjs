@@ -26,10 +26,60 @@ function reply(env,data,status=200){
     'Access-Control-Allow-Headers':'Content-Type','Vary':'Origin'
   }});
 }
-async function handle(req,env){
+async function deliver(env,row,message,table){
+    if(!validEndpoint(row.endpoint))return;
+    try{
+      const payload=await buildPushPayload({data:JSON.stringify(message),options:{ttl:900,urgency:'normal'}},{endpoint:row.endpoint,expirationTime:null,keys:{p256dh:row.p256dh,auth:row.auth}},{publicKey:env.VAPID_SERVER_PUBLIC_KEY,privateKey:env.VAPID_SERVER_PRIVATE_KEY,subject:env.VAPID_SUBJECT});
+      const res=await fetch(row.endpoint,{...payload,redirect:'error'});
+      if(res.status===404||res.status===410)await env.DB.prepare(`DELETE FROM ${table} WHERE token_hash=? AND endpoint=?`).bind(row.token_hash,row.endpoint).run();
+      if(!res.ok&&res.status!==404&&res.status!==410)console.warn('Push delivery status',res.status);
+    }catch{console.warn('Push delivery failed');}
+}
+
+async function club(req,env,ctx,path){
+  if(req.method!=='POST')return reply(env,{error:'not_found'},404);
+  if(!env.CLUB_MEMBER_CODE||!env.CLUB_AUTHOR_CODE)return reply(env,{error:'not_configured'},503);
+  if(!req.headers.get('Content-Type')?.startsWith('application/json'))return reply(env,{error:'invalid_type'},415);
+  const raw=await req.text();
+  if(raw.length>8192)return reply(env,{error:'too_large'},413);
+  let body;
+  try{body=JSON.parse(raw)}catch{return reply(env,{error:'invalid_json'},400);}
+  const author=path==='/club/report';
+  const code=author?env.CLUB_AUTHOR_CODE:env.CLUB_MEMBER_CODE;
+  if(typeof body?.code!=='string'||!tokenPattern.test(body.code)||await hashToken(body.code)!==await hashToken(code))return reply(env,{error:'access_denied'},403);
+  if(author){
+    if(typeof body.id!=='string'||!tokenPattern.test(body.id))return reply(env,{error:'invalid_id'},400);
+    const result=await env.DB.prepare('INSERT OR IGNORE INTO club_report(id,created_at) VALUES (?,?)').bind(body.id,Date.now()).run();
+    if(result.meta.changes){
+      ctx.waitUntil((async()=>{
+        const {results}=await env.DB.prepare('SELECT endpoint,token_hash,p256dh,auth FROM club_subscription LIMIT 12').all();
+        await Promise.all(results.map(row=>deliver(env,row,{title:'Kammerat Mårten',body:'Der er en ny melding i Kontrolcentralen.',tag:'klub-'+body.id,url:'kontrolcentral/'},'club_subscription')));
+      })());
+    }
+    return reply(env,{ok:true});
+  }
+  if(path==='/club/reports'){
+    const {results}=await env.DB.prepare('SELECT created_at FROM club_report ORDER BY created_at DESC LIMIT 30').all();
+    return reply(env,{reports:results});
+  }
+  if(!['/club/subscribe','/club/unsubscribe'].includes(path))return reply(env,{error:'not_found'},404);
+  if(typeof body.token!=='string'||!tokenPattern.test(body.token))return reply(env,{error:'invalid_token'},400);
+  const token=await hashToken(body.token);
+  if(path==='/club/unsubscribe'){
+    await env.DB.prepare('DELETE FROM club_subscription WHERE token_hash=?').bind(token).run();
+    return reply(env,{ok:true});
+  }
+  const sub=body.subscription;
+  if(!validKeys(sub))return reply(env,{error:'invalid_subscription'},400);
+  const result=await env.DB.prepare('INSERT OR IGNORE INTO club_subscription(endpoint,token_hash,p256dh,auth) SELECT ?,?,?,? WHERE (SELECT COUNT(*) FROM club_subscription) < ? OR EXISTS (SELECT 1 FROM club_subscription WHERE token_hash=?) ON CONFLICT(token_hash) DO UPDATE SET endpoint=excluded.endpoint,p256dh=excluded.p256dh,auth=excluded.auth').bind(sub.endpoint,token,sub.keys.p256dh,sub.keys.auth,12,token).run();
+  return result.meta.changes?reply(env,{ok:true}):reply(env,{error:'subscription_unavailable'},409);
+}
+
+async function handle(req,env,ctx){
   if(req.headers.get('Origin')!==env.APP_ORIGIN)return new Response('Forbidden',{status:403});
   if(req.method==='OPTIONS')return reply(env,null,204);
   const path=new URL(req.url).pathname;
+  if(path.startsWith('/club/'))return club(req,env,ctx,path);
   if(path==='/key'&&req.method==='GET'){
     if(!env.VAPID_SERVER_PUBLIC_KEY||!env.VAPID_SERVER_PRIVATE_KEY||!env.VAPID_SUBJECT)return reply(env,{error:'not_configured'},503);
     return reply(env,{publicKey:env.VAPID_SERVER_PUBLIC_KEY});
@@ -68,16 +118,10 @@ export async function sendSlot(env,slot){
     // Claim before send so a repeated scheduled invocation cannot resend the same directive.
     const claim=await env.DB.prepare('UPDATE subscription SET last_slot=? WHERE token_hash=? AND last_slot<>?').bind(slot.id,row.token_hash,slot.id).run();
     if(!claim.meta.changes)continue;
-    if(!validEndpoint(row.endpoint))continue;
-    try{
-      const payload=await buildPushPayload({data:JSON.stringify(message),options:{ttl:900,urgency:'normal'}},{endpoint:row.endpoint,expirationTime:null,keys:{p256dh:row.p256dh,auth:row.auth}},{publicKey:env.VAPID_SERVER_PUBLIC_KEY,privateKey:env.VAPID_SERVER_PRIVATE_KEY,subject:env.VAPID_SUBJECT});
-      const res=await fetch(row.endpoint,{...payload,redirect:'error'});
-      if(res.status===404||res.status===410)await env.DB.prepare('DELETE FROM subscription WHERE token_hash=?').bind(row.token_hash).run();
-      if(!res.ok&&res.status!==404&&res.status!==410)console.warn('Push delivery status',res.status);
-    }catch{console.warn('Push delivery failed');}
+    await deliver(env,row,message,'subscription');
   }
 }
 export default {
- async fetch(req,env){try{return await handle(req,env)}catch{return reply(env,{error:'service_error'},500);}},
+ async fetch(req,env,ctx){try{return await handle(req,env,ctx)}catch{return reply(env,{error:'service_error'},500);}},
  async scheduled(event,env,ctx){const slot=slotFor(event.scheduledTime);if(slot)ctx.waitUntil(sendSlot(env,slot));}
 };

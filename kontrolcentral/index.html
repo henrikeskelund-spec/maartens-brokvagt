@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kontrolcentralen · Den Nationale Brokkommission</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<style>
+:root{color-scheme:dark;font:17px/1.5 system-ui;background:#151912;color:#faf2d4}
+body{margin:0}main{max-width:36rem;margin:auto;padding:2rem 1rem}
+header{border-bottom:5px solid #c75042;padding-bottom:1rem}
+header p{margin:0;color:#e4ba69}h1{margin:.3em 0 0;font-size:clamp(2rem,8vw,3.5rem)}
+section{background:#242b1e;border:1px solid #85956d;padding:1rem;margin:1rem 0}
+label,input{display:block}input{box-sizing:border-box;width:100%;padding:.65rem;margin:.3rem 0 1rem}
+button{font:inherit;padding:.55rem .9rem;margin:0 .4rem .5rem 0;color:#171b12;background:#d7e3c6;border:0;cursor:pointer}
+button:disabled{opacity:.55;cursor:default}a{color:#f5cb7b}li{margin:.5rem 0}
+</style>
+<script defer src="../push-config.js"></script>
+<script defer src="./club.js"></script>
+</head>
+<body><main>
+<header><p>DEN NATIONALE BROKKOMMISSION</p><h1>Kontrolcentralen</h1></header>
+<section id="member" hidden>
+<h2>Madklubbens meldinger</h2>
+<label for="memberCode">Madklubbens adgangskode</label>
+<input id="memberCode" type="password" autocomplete="off" spellcheck="false">
+<button id="read" type="button">Vis meldinger</button>
+<button id="on" type="button">Slå notifikationer til</button>
+<button id="off" type="button">Slå notifikationer fra</button>
+<p id="memberStatus" role="status"></p>
+<ul id="reports"></ul>
+</section>
+<section id="author" hidden>
+<h2>Meld status til madklubben</h2>
+<p>Madklubben får denne besked fra Kammerat Mårten.</p>
+<blockquote>Der er en ny melding i Kontrolcentralen.</blockquote>
+<p>På Kontrolcentralen vises tidspunktet for din melding.</p>
+<label for="authorCode">Din afsenderkode</label>
+<input id="authorCode" type="password" autocomplete="off" spellcheck="false">
+<button id="send" type="button">Send melding til madklubben</button>
+<p id="authorStatus" role="status"></p>
+</section>
+<a href="../">Tilbage til Central</a>
+</main></body>
+</html>
