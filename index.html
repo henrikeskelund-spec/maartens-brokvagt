@@ -291,9 +291,9 @@ if ('serviceWorker' in navigator && location.protocol === 'https:') {
  // Brandheader remains outside tabs. The other sections are moved, never duplicated.
  const welcome=document.createElement('div');welcome.className='homeWelcome';welcome.innerHTML='<div class="caseRow"><span>Sagsnr. JONAS-001</span><span id="caseBadge" class="caseBadge">SAG UAFSLUTTET</span></div>';
  screens.home.append(welcome);add('home',[3]);
- const docket=document.createElement('div');docket.className='docket';docket.innerHTML='<small>SAGSBEHANDLINGSTID</small><b id="caseCount">0 DAGE</b><strong id="caseLevel">ALMINDELIG SAGSBEHANDLING</strong><span class="caseNote" id="caseNote">Uden registreret behandlingsplan · dage siden oprettelse.</span>';screens.home.append(docket);add('home',[4,5,7,8]);children[5].querySelector('.factHeading').append(children[4].querySelector('#dateLabel'));renderCase();
+ const docket=document.createElement('div');docket.className='docket';docket.innerHTML='<small>SAGSBEHANDLINGSTID</small><b id="caseCount">0 DAGE</b><strong id="caseLevel">ALMINDELIG SAGSBEHANDLING</strong><span class="caseNote" id="caseNote">Uden registreret behandlingsplan · dage siden oprettelse.</span>';screens.home.append(docket);add('home',[7,8]);children[5].querySelector('.factHeading').append(children[4].querySelector('#dateLabel'));renderCase();
  screens.history.innerHTML='<h1 class="screenTitle">Historiske efterretninger</h1><p class="screenSubtitle">Et nyt historisk nedslag hver kalenderdag. Fra oldtidens metoder til moderne brokkirurgi. Alle historier har kilde.</p>';
- add('history',[9,10]);
+ add('history',[5,6,9,10]);
  screens.status.innerHTML='<h1 class="screenTitle">Sagsmappe JONAS-001</h1><p class="screenSubtitle">Sagens formål: En konkret aftale med lægen. Kommissionen accepterer både en operationsdato og en lægefaglig aftale om at afvente.</p>';
  add('status',[11,12]);
  const receiptStats=children[8].querySelector('.ackStats');const receiptPanel=document.createElement('section');receiptPanel.className='panel receiptPanel';receiptPanel.innerHTML='<h2>Kvitteringsprotokol</h2><p class="baseText">Din egen lokale journal over modtagne henvendelser. Ingen ekstern overvågning.</p>';receiptPanel.append(receiptStats);screens.status.append(receiptPanel);
@@ -316,7 +316,7 @@ if ('serviceWorker' in navigator && location.protocol === 'https:') {
   try{history.replaceState(null,'','#'+view)}catch(e){}
   window.scrollTo({top:0,behavior:'instant'});
  }
- const foot=document.createElement('p');foot.className='commissionFoot';foot.textContent='Madklubben er ikke en myndighed. Mårten tror, han er.';screens.home.append(foot);add('home',[6]);
+ const foot=document.createElement('p');foot.className='commissionFoot';foot.textContent='Madklubben er ikke en myndighed. Mårten tror, han er.';screens.home.append(foot);
  const hash=location.hash.replace('#','');show(screens[hash]?hash:'home');
  window.addEventListener('hashchange',()=>{const next=location.hash.replace('#','');if(screens[next])show(next)});
 })();
