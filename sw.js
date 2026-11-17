@@ -1,9 +1,10 @@
 // Version 4.1. Network-first navigation, offline fallback. No analytics.
-const CACHE='maartens-brokvagt-v41';
+const CACHE='maartens-brokvagt-v42';
 const FILES=['./','./index.html','./manifest.webmanifest','./assets/icon.svg','./push-client.js','./push-config.js'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(c=>c.addAll(FILES)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('maartens-brokvagt-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',event=>{const req=event.request;if(req.method!=='GET'||new URL(req.url).origin!==self.location.origin)return;
+if(new URL(req.url).pathname.startsWith(new URL('./kontrolcentral/',self.registration.scope).pathname))return;
 if(new URL(req.url).pathname.endsWith('/push-config.js')){event.respondWith((async()=>{const cache=await caches.open(CACHE);try{const res=await fetch(req,{cache:'no-store'});if(res.ok){await cache.put(req,res.clone());return res;}}catch{}return await cache.match(req)||new Response("window.BROK_PUSH_ENDPOINT = '';",{headers:{'Content-Type':'application/javascript'}});})());return;}
 if(req.mode==='navigate'){event.respondWith((async()=>{const cache=await caches.open(CACHE);try{const response=await fetch(req);if(response.ok){await cache.put('./index.html',response.clone());return response;}return await cache.match('./index.html')||response;}catch{ return await cache.match('./index.html')||Response.error();}})());return;}
 event.respondWith((async()=>{const cache=await caches.open(CACHE);const hit=await cache.match(req);if(hit)return hit;const response=await fetch(req);if(response.ok)await cache.put(req,response.clone());return response;})());});
