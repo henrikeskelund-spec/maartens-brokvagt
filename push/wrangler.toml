@@ -15,4 +15,5 @@ crons = ["0 7,8,11,12,16,17 * * *"]
 [[d1_databases]]
 binding = "DB"
 database_name = "brokkommission-push"
-database_id = "REPLACE_WITH_D1_DATABASE_ID"
+database_id = "f24d3818-2ec4-4bd1-8582-db39caa5e473"
+
