@@ -6,12 +6,33 @@ const reportKey='brokkommission-club-unsent-report';
 const actions=[...document.querySelectorAll('button')];
 const codePattern=/^[a-f0-9]{64}$/;
 const random=()=>Array.from(crypto.getRandomValues(new Uint8Array(32)),byte=>byte.toString(16).padStart(2,'0')).join('');
-const getCode=id=>byId(id).value.trim();
-const showMode=()=>{
-  const writing=location.hash==='#melding';
-  byId('author').hidden=!writing;
-  byId('member').hidden=writing;
+const inviteKeys={
+  member:'brokkommission-club-member-invite',
+  author:'brokkommission-club-author-invite'
 };
+const temporaryCodes={};
+const showMode=()=>{
+  const invitation=location.hash.match(/^#(madklub|melding)=([a-f0-9]{64})$/);
+  const writing=location.hash==='#melding'||invitation?.[1]==='melding';
+  const role=writing?'author':'member';
+  if(invitation){
+    temporaryCodes[role]=invitation[2];
+    try{localStorage.setItem(inviteKeys[role],invitation[2]);}catch{}
+    history.replaceState(null,'',location.pathname+location.search+(writing?'#melding':''));
+  }
+  const hasInvite=Boolean(getCode(role));
+  byId('author').hidden=!writing||!hasInvite;
+  byId('member').hidden=writing||!hasInvite;
+  byId('invitation').hidden=hasInvite;
+  byId('invitationHelp').textContent=writing
+    ?'Brug dit personlige afsenderlink på denne enhed.'
+    :'Brug madklubbens invitationslink på denne enhed.';
+};
+function getCode(role){
+  let code=temporaryCodes[role];
+  if(!code){try{code=localStorage.getItem(inviteKeys[role]);}catch{}}
+  return codePattern.test(code||'')?code:'';
+}
 window.addEventListener('hashchange',showMode);
 showMode();
 
@@ -24,7 +45,7 @@ async function api(path,body){
     credentials:'omit',
     signal:AbortSignal.timeout(12000)
   });
-  if(!response.ok)throw new Error(response.status===403?'Adgangskoden blev afvist.':'Forbindelsen til Kontrolcentralen mislykkedes. Prøv igen.');
+  if(!response.ok)throw new Error(response.status===403?'Invitationen blev afvist. Åbn dit nyeste invitationslink.':'Forbindelsen til Kontrolcentralen mislykkedes. Prøv igen.');
   return response.json();
 }
 
@@ -41,18 +62,18 @@ function decode(value){
   const base64=value.replace(/-/g,'+').replace(/_/g,'/');
   return Uint8Array.from(atob(base64.padEnd(Math.ceil(base64.length/4)*4,'=')),c=>c.charCodeAt(0));
 }
-function action(button,codeField,statusField,run){
+function action(button,role,statusField,run){
   byId(button).addEventListener('click',async()=>{
     const status=byId(statusField);
-    const code=getCode(codeField);
-    if(!codePattern.test(code)){status.textContent='Indtast din adgangskode.';return}
+    const code=getCode(role);
+    if(!code){showMode();return}
     actions.forEach(item=>{item.disabled=true});
     try{status.textContent=await run(code)}
     catch(error){status.textContent=error.message||'Handlingen mislykkedes. Prøv igen.'}
     finally{actions.forEach(item=>{item.disabled=false})}
   });
 }
-action('read','memberCode','memberStatus',async code=>{
+action('read','member','memberStatus',async code=>{
   const list=byId('reports');
   list.replaceChildren();
   const {reports}=await api('/club/reports',{code});
@@ -64,8 +85,7 @@ action('read','memberCode','memberStatus',async code=>{
   }
   return reports.length?'Meldinger fra Kammerat Mårten':'Der er endnu ingen meldinger.';
 });
-byId('memberCode').addEventListener('input',()=>{byId('reports').replaceChildren();byId('memberStatus').textContent='';});
-action('on','memberCode','memberStatus',async code=>{
+action('on','member','memberStatus',async code=>{
   if(!supported)return 'Åbn Kontrolcentralen i en understøttet browser. På iPhone skal du føje siden til hjemmeskærmen først.';
   if(await Notification.requestPermission()!=='granted')return 'Notifikationer er slået fra i browseren.';
   const reg=await registration();
@@ -78,7 +98,7 @@ action('on','memberCode','memberStatus',async code=>{
   catch(error){if(!existing)await sub.unsubscribe().catch(()=>{});throw error}
   return 'Notifikationer er slået til på denne enhed.';
 });
-action('off','memberCode','memberStatus',async code=>{
+action('off','member','memberStatus',async code=>{
   const token=localStorage.getItem(tokenKey);
   const reg=supported?await navigator.serviceWorker.getRegistration('./sw.js'):null;
   const sub=reg&&await reg.pushManager.getSubscription();
@@ -87,12 +107,11 @@ action('off','memberCode','memberStatus',async code=>{
   localStorage.removeItem(tokenKey);
   return 'Notifikationer er slået fra på denne enhed.';
 });
-action('send','authorCode','authorStatus',async code=>{
+action('send','author','authorStatus',async code=>{
   const id=sessionStorage.getItem(reportKey)||random();
   sessionStorage.setItem(reportKey,id);
   await api('/club/report',{code,id});
   sessionStorage.removeItem(reportKey);
-  byId('authorCode').value='';
   return 'Din melding er sendt til madklubben.';
 });
 })();
