@@ -383,7 +383,6 @@ if ('serviceWorker' in navigator && location.protocol === 'https:') {
  const receiptStats=children[8].querySelector('.ackStats');const receiptPanel=document.createElement('section');receiptPanel.className='panel receiptPanel';receiptPanel.innerHTML='<h2>Kvitteringsprotokol</h2><p class="baseText">Din egen lokale journal over modtagne henvendelser. Ingen ekstern overvågning.</p>';receiptPanel.append(receiptStats);screens.history.append(receiptPanel);
  screens.more.innerHTML='<h1 class="screenTitle">Kommissionens forvaltning</h1><p class="screenSubtitle">Praktisk information, sundhedsfaglige kilder og fortrolighed. Ingen myndighedsstatus.</p>';
  add('more',[2,13,14,15,16,17,18]);
- const notice=document.createElement('div');notice.className='helperLine';notice.textContent='Webappen viser en ny historisk fact hver dag, når du åbner den. Automatiske baggrundsnotifikationer kræver en separat mobil- eller pushløsning.';screens.more.insertBefore(notice,screens.more.children[2]);
  const historyWelcome=document.createElement('div');historyWelcome.className='helperLine';historyWelcome.textContent='Tip: Tryk på en kilde for at læse den oprindelige historiske forskning. Fortællingerne siger ikke noget om din individuelle risiko.';screens.status.insertBefore(historyWelcome,children[9]);
  // Keep original promo section hidden; its text is preserved in the source.
  add('more',[1]);
