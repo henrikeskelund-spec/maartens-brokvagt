@@ -1,27 +1,22 @@
-# Den Nationale Brokkommission – 3.2
+# Den Nationale Brokkommission – 4.0
 
-En satirisk webapp fra madklubben, målrettet Jonas. Kommissionsformand Mårten leverer 31 daglige bureaukratiske henvendelser og 31 kildebelagte historiske brok-facts.
+En satirisk webapp fra madklubben med Kammerat Mårten som kommissionsformand. Østblok-inspireret myndighedsdesign, fiktiv forvaltningssatire og dokumenterede historiske brok-facts.
 
 ## Funktioner
-- Kommandocentral med sagsnummer JONAS-001 og lokal sagsalder. Efter 7 og 14 dage eskalerer den bureaukratiske satire – ikke den medicinske risikovurdering.
-- Historiske efterretninger med links til kilder.
-- Daglig modtagelseskvittering, frivillig deling til madklubben og bevarelse af tidligere kvitteringer.
-- Sagsbehandling: Kontaktet lægen, operationsdato registreret eller afventning aftalt med lægen.
-- Satirisk afslutningsbevis, der kan udskrives eller gemmes som PDF. Det er ikke en lægeerklæring.
-- Installerbar og offlinevenlig webapp.
+- Central: sagsnummer JONAS-001, sagsalder, 31 daglige direktiver, kvittering og sagsbehandling.
+- Sagsmappe: Operation Fit for Fight, gennemførelsesprotokol, historiske præcedenssager og det kildebelagte hovedarkiv med 31 facts.
+- Efterretning: voksende lokal journal med fiktive dagsrapporter og særskilt registrering af faktiske kvitteringer og brugerens statusændringer.
+- Sagsforløb: lægekonsultation, forundersøgelse, hospitalskontakt, operationsdato, operation og restitution. De allerede gennemførte trin registreres af brugeren.
+- Brokfrihedsbevis: AFVENTER EKSEKVERING, EKSEKVERET og FIT FOR FIGHT – SAG HENLAGT. Kan udskrives eller gemmes som PDF. En aftalt afventning respekteres og giver et særskilt afventningsbevis.
+- Forvaltning: sundhedskilder, alarmsignaler, telefonmanuskript og praktiske indstillinger.
 
 ## Webadresse
 https://henrikeskelund-spec.github.io/maartens-brokvagt/
 
-## Privatliv
-Kun fornavnet Jonas er fast tiltale. Ingen portrætfoto, efternavn eller konkrete helbredsoplysninger offentliggøres. Sagsstatus, sagsalder og kvitteringer gemmes kun på den lokale enhed. Deling er frivillig og kræver brugerens handling.
+## Privatliv og begrænsninger
+Fiktiv kommission, ikke en myndighed. Kun fornavnet Jonas er fast tiltale. Ingen konkret personlig sygehistorie eller uddannelsesbaggrund er indkodet. Status, sagsalder og kvitteringer gemmes lokalt med samme localStorage-nøgle som før. Deling kræver aktiv brugerhandling. Journalen beregnes ved åbning, ikke via baggrundsovervågning, og viser højst de seneste 366 kalenderdage.
 
-## Begrænsninger
-Kommissionen er fiktiv og ikke en offentlig myndighed. Appen kan ikke vurdere personlig risiko. Ikke alle brok skal opereres; lægens vurdering er afgørende. Søg akut lægehjælp ved alarmsignaler. En ny fact vises ved åbning hver dag; baggrundsnotifikationer kræver særskilt pushløsning eller native app.
+Hospitalets og lægens vurdering har forrang. Certifikatet er satire og ikke en lægeerklæring. Appen sender ikke automatiske pushnotifikationer i baggrunden.
 
 ## Teknik
-Statiske HTML/CSS/JavaScript-filer uden backend eller eksterne biblioteker. GitHub Pages, webmanifest og service worker. Version 3.1 bevarer den tidligere localStorage-nøgle.
-
-Version 3.1: Lys, minimalistisk myndighedsskabelon efter den godkendte skitse. Originalt portræt af Mårten i fiktiv uniform. Kvitteringsprotokollen findes under Sagsmappe.
-
-Version 3.2: Central indeholder lægekontakt og sagsstatus. Efterretning er en lokal, voksende journal med fiktive dagsrapporter og faktisk registrerede kvitteringer/statusændringer. Sagsmappe indeholder de 31 historiske facts og kilder. Journalen beregnes ved åbning, ikke via baggrundsovervågning, og viser højst 366 seneste kalenderdage.
+Statiske HTML/CSS/JavaScript-filer, GitHub Pages, webmanifest og service worker. Ingen backend eller eksterne biblioteker.
