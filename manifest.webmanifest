@@ -1,13 +1,13 @@
 {
   "name": "Den Nationale Brokkommission",
   "short_name": "Brokkommission",
-  "description": "Madklubbens satiriske brokkommission med Mårten og Jonas.",
+  "description": "Kammerat Mårtens fiktive brokkommission. Operation Fit for Fight.",
   "id": "./",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#eeefea",
-  "theme_color": "#eeefea",
+  "background_color": "#e7e6da",
+  "theme_color": "#e7e6da",
   "lang": "da",
   "icons": [
     {
