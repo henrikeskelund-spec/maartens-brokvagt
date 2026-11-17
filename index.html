@@ -216,12 +216,14 @@ main{background:#e7e6da;background-image:repeating-linear-gradient(0deg,#2025180
   <button class="btn outline" id="reopen">Genåbn sagen</button></div>
 </section>
 <section id="reminderSection">
-  <div class="sectionHead"><strong>PRØVE: OFFICIEL HENVENDELSE</strong><small>SIMULERING</small></div>
-  <div class="panel"><p class="baseText">Vælg tidspunkt. Prøv, hvordan en daglig påmindelse med en historisk fact fra Mårten kan se ud.</p>
-  <div class="times" id="timeButtons"></div>
-  <button class="btn" id="previewNotice">Se, hvordan Mårtens besked vil se ud</button>
-  <div class="copyNotice hidden" id="noticePreview" role="status"></div>
-  <p class="tiny">Denne webapp gemmer dit tidspunkt, men kan ikke selv sende automatiske daglige pushbeskeder, når den er lukket. Det kræver mobilappen eller en særskilt notifikationsløsning.</p></div>
+ <div class="sectionHead"><strong>DIREKTORATET FOR OFFICIEL KORRESPONDANCE</strong></div>
+ <div class="panel"><h2 class="fileTitle">Modtagelse af direktiver</h2>
+ <p class="baseText">Korrespondancefrekvensen er fastlagt af præsidiet og kan ikke ændres administrativt.</p>
+ <div class="milestone"><span>09.00 · Morgendirektiv</span><b>FASTLAGT</b></div><div class="milestone"><span>13.00 · Implementeringskontrol</span><b>FASTLAGT</b></div><div class="milestone"><span>18.00 · Aftenrapport</span><b>FASTLAGT</b></div>
+ <p id="pushStatus" class="baseText" role="status" aria-live="polite">Korrespondancekontoret afventer idriftsættelse.</p>
+ <button type="button" class="btn green" id="pushEnable" disabled>AKTIVÉR OFFICIEL KORRESPONDANCE</button>
+ <button type="button" class="btn outline" id="pushDisable" disabled>INDSTIL KORRESPONDANCEN</button>
+ <p class="tiny">Jf. præsidiets direktiv 04/1984.</p></div>
 </section>
 <div class="sectionHead"><strong>SUNDHEDSFAGLIGE OPLYSNINGER</strong></div>
 <section class="panel"><p class="baseText">Et brok kan blive større og give flere gener. Indeklemning er en mulig, men ved lyskebrok hos mænd ofte sjælden komplikation. Ikke alle brok skal opereres.</p>
@@ -242,6 +244,7 @@ const el=id=>document.getElementById(id);
 const displayName='Jonas';
 const STATES=['pending','contacted','examined','hospital','booked','operated','fit','watching'];
 const planned=s=>['booked','operated','fit','watching'].includes(s);
+window.isBrokPlanRegistered=()=>planned(status);
 const terminal=s=>['fit','watching'].includes(s);
 let status='pending',hour=9,nudgeIndex=-1,demoOffset=0,seenDays=[],caseOpened=dayKey(new Date()),caseClosed='',journalStart=caseOpened,statusEvents=[];
 try{const saved=JSON.parse(localStorage.getItem('maartens-brokvagt-pages-v1')||'{}');status=STATES.includes(saved.status)?saved.status:'pending';hour=saved.hour||9;seenDays=Array.isArray(saved.seenDays)?saved.seenDays.filter(x=>/^\d{4}-\d{2}-\d{2}$/.test(x)):[];if(validDate(saved.caseOpened))caseOpened=saved.caseOpened;if(validDate(saved.caseClosed))caseClosed=saved.caseClosed;journalStart=validDate(saved.journalStart)?saved.journalStart:caseOpened;statusEvents=Array.isArray(saved.statusEvents)?saved.statusEvents.filter(e=>e&&validDate(e.date)&&STATES.includes(e.status)):[];}catch(e){}
@@ -334,7 +337,7 @@ function renderStatus(){
  const titles={pending:'SAGSSTATUS AFVENTER REGISTRERING',contacted:'LÆGEKONSULTATION REGISTRERET',examined:'FORUNDERSØGELSE REGISTRERET',hospital:'HOSPITAL KONTAKTET',booked:'AFVENTER EKSEKVERING',operated:'RESTITUTIONSFASE',fit:'FIT FOR FIGHT · SAG HENLAGT',watching:'LÆGEFAGLIG AFVENTNING AFTALT'};
  const desc={pending:'Bekræft de allerede gennemførte trin, og afklar næste skridt med hospitalet.',contacted:'Registrér forundersøgelsen, når den er gennemført.',examined:'Forundersøgelsen er registreret. Kontakt hospitalet og afklar en eventuel operationsdato.',hospital:'Afvent hospitalets tilbagemelding eller følg op efter aftale.',booked:'Femårsplanens operative fase er indledt. Følg hospitalets instruktioner.',operated:'Den operative fase er registreret. Restitution gennemføres efter lægens råd.',fit:'Kammerat Jonas melder sig tilbage i kampform. Kommissionen henlægger sagen.',watching:'Kommissionen indstiller henvendelserne i overensstemmelse med den lægefaglige aftale.'};
  setText('statusTitle',titles[status]);setText('statusText',desc[status]);el('statusDot').style.background=done?'var(--green)':'var(--gold)';setText('missionStatus',terminal(status)?'HENLAGT':done?'REALISERINGSFASE':'UAFSLUTTET');
- el('statusButtons').classList.toggle('hidden',done);el('finishButtons').classList.toggle('hidden',!done);el('reminderSection').classList.toggle('hidden',done);
+ el('statusButtons').classList.toggle('hidden',done);el('finishButtons').classList.toggle('hidden',!done);
  for(const [id,visible] of [['contacted',rank<1],['examined',rank<2],['hospital',rank<3],['booked',!done],['operated',status==='booked'],['fit',status==='operated'],['pausePlan',status==='booked'||status==='operated']])el(id).classList.toggle('hidden',!visible);
  el('certificate').classList.toggle('hidden',!done);
  setText('certTitle',status==='watching'?'AFVENTNINGSBEVIS':'BROKFRIHEDSBEVIS');setText('certSub',status==='fit'?'FIT FOR FIGHT · SAG HENLAGT':status==='operated'?'EKSEKVERET':status==='watching'?'LÆGEFAGLIG PLAN REGISTRERET':'AFVENTER EKSEKVERING');setText('certStamp',status==='fit'?'SAG HENLAGT':status==='operated'?'EKSEKVERET':status==='watching'?'AFVENTNING AFTALT':'GODKENDT');
@@ -342,21 +345,19 @@ function renderStatus(){
  renderCase();renderNudge();renderMilestones();}
 function renderMilestones(){const list=el('milestoneList');if(!list)return;const rank=status==='watching'?-1:STATES.indexOf(status);list.replaceChildren();for(const [label,level] of [['Lægekonsultation',1],['Forundersøgelse',2],['Kontakt til hospital',3],['Operationsdato fastlagt',4],['Operation gennemført',5],['Tilbage i kampform',6]]){const row=document.createElement('div');row.className='milestone';const a=document.createElement('span');a.textContent=(rank>=level?'☑ ':'☐ ')+label;const b=document.createElement('b');b.textContent=rank>=level?'REGISTRERET':status==='watching'?'SAT I BERO':'AFVENTER';b.className=rank>=level?'complete':'waiting';row.append(a,b);list.append(row);}}
 function renderNudge(){const today=new Date().getDate(),days=caseDays();const extra=days>=14?' Tillægsdirektiv: Plenum har bevilget to ekstra stole, begge til formandens hale.':days>=7?' Tillægsdirektiv: En ekstra ringmappe er afsat i statsbudgettet.':'';const closing={booked:'Kammerat Jonas. Operationsdato registreret. Præsidiet har godkendt Brokfrihedsbeviset, afventer eksekvering.',operated:'Kammerat Jonas. Operationen er registreret. Restitution har forrang for samtlige produktionsmål.',fit:'Kammerat Jonas. Operativ genindsættelse registreret. Kommissionen henlægger sagen og vender tilbage til skoven.',watching:'Kammerat Jonas. Lægefaglig afventning registreret. Præsidiet respekterer aftalen.'};setText('martenSays',closing[status]||data.nudges[(nudgeIndex<0?today-1:nudgeIndex)%data.nudges.length]+extra);}
-function renderTimes(){el('timeButtons').innerHTML='';[9,12,18,21].forEach(h=>{const b=document.createElement('button');b.type='button';b.className='pill'+(hour===h?' active':'');b.textContent=String(h).padStart(2,'0')+':00';b.onclick=()=>{hour=h;save();renderTimes();el('noticePreview').classList.add('hidden')};el('timeButtons').append(b);});}
-function setStatus(next){if(!STATES.includes(next))return;const wasDone=planned(status);if(next!==status)statusEvents.push({date:dayKey(new Date()),status:next});status=next;const done=planned(next);if(done&&!wasDone)caseClosed=dayKey(new Date());if(!done&&wasDone){caseOpened=dayKey(new Date());caseClosed='';}save();renderStatus();renderJournal();}
+function setStatus(next){if(!STATES.includes(next))return;const wasDone=planned(status);if(next!==status)statusEvents.push({date:dayKey(new Date()),status:next});status=next;const done=planned(next);if(done&&!wasDone)caseClosed=dayKey(new Date());if(!done&&wasDone){caseOpened=dayKey(new Date());caseClosed='';}save();renderStatus();renderJournal();window.reconcileCorrespondence?.();}
 el('ackButton').onclick=acknowledgeAndShare;
 el('printCert').onclick=()=>{if(!planned(status))return;document.body.classList.add('printCertificate');try{window.print()}finally{document.body.classList.remove('printCertificate')}};
 el('copyMessage').onclick=async()=>{const msg=el('messageText').value;try{await navigator.clipboard.writeText(msg);setText('shareHint','Beskeden er kopieret. Indsæt den nu i madklubbens chat. Ingen besked er sendt automatisk.');}catch(error){el('messageText').focus();el('messageText').select();setText('shareHint','Markeret til kopiering. Kopiér teksten manuelt og indsæt den i madklubbens chat.');}};
 for(const id of ['contacted','examined','hospital','booked','operated','fit','watching'])el(id).onclick=()=>setStatus(id);el('pausePlan').onclick=()=>setStatus('watching');el('reopen').onclick=()=>setStatus('pending');
 el('nudgeButton').onclick=()=>{nudgeIndex=nudgeIndex<0?new Date().getDate():nudgeIndex+1;renderNudge();el('marten').classList.remove('bump');void el('marten').offsetWidth;el('marten').classList.add('bump');};
 el('tomorrow').onclick=()=>{demoOffset++;renderHistory()};el('resetDate').onclick=()=>{demoOffset=0;renderHistory()};
-el('previewNotice').onclick=()=>{const f=currentFact().fact;el('noticePreview').classList.remove('hidden');el('noticePreview').textContent='';const strong=document.createElement('strong');strong.textContent='Mårten · '+String(hour).padStart(2,'0')+':00 · '+f.title;el('noticePreview').append(strong,document.createElement('br'),document.createTextNode(f.body.slice(0,140)+(f.body.length>140?'…':'')+' '+displayName+', afklar næste skridt med hospitalet.'));};
 el('showMedical').onclick=()=>{el('emergencyBox').classList.toggle('hidden');el('showMedical').textContent=el('emergencyBox').classList.contains('hidden')?'Alarmsignaler og sundhedskilder +':'Alarmsignaler og sundhedskilder −';};
 el('showScript').onclick=()=>el('callScript').classList.toggle('hidden');
 el('archiveButton').onclick=()=>{const open=el('archive').classList.toggle('hidden')===false;el('archiveButton').setAttribute('aria-expanded',String(open));el('archiveButton').textContent=open?'Skjul de 31 facts −':'Se hele Mårtens historiske arkiv +';};
 for(const fact of data.facts){const item=document.createElement('article');item.className='archiveFact';const number=document.createElement('b');number.textContent=String(fact.day).padStart(2,'0');const body=document.createElement('div');const title=document.createElement('h3');title.textContent=fact.title;const desc=document.createElement('p');desc.textContent=fact.body;const a=document.createElement('a');a.href=fact.sourceUrl;a.target='_blank';a.rel='noopener noreferrer';a.textContent='Læs kilden ↗';body.append(title,desc,a);item.append(number,body);el('archive').append(item);}
 setText('medicalDisclaimer',data.disclaimer);setText('emergencyText',data.emergency);
-save();renderHistory();renderStatus();renderTimes();renderAcknowledgement();
+save();renderHistory();renderStatus();renderAcknowledgement();
 let lastDay=new Date().getDate();setInterval(()=>{const day=new Date().getDate();if(day!==lastDay){lastDay=day;demoOffset=0;renderHistory();renderCase();renderNudge();renderAcknowledgement();renderJournal();el('manualShare').classList.add('hidden');}},60000);
 </script>
 <script>
@@ -405,5 +406,7 @@ if ('serviceWorker' in navigator && location.protocol === 'https:') {
  window.addEventListener('hashchange',()=>{const next=location.hash.replace('#','');if(screens[next])show(next)});
 })();
 </script>
+<script src="./push-config.js"></script>
+<script src="./push-client.js"></script>
 </body>
 </html>
