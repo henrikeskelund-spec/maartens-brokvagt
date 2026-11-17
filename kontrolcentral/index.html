@@ -20,8 +20,6 @@ h1,h2{font-family:Georgia,serif;color:#2f4032}
 h1{font-size:clamp(30px,7vw,38px);line-height:1.08;margin:0 0 18px}
 h2{font-size:22px;line-height:1.2;margin:0 0 14px}
 .panel{background:var(--card);border:1px solid #aeb1a0;border-top:3px double #727d68;box-shadow:2px 2px 0 #303b2420;padding:clamp(14px,4vw,20px);margin:0 0 18px}
-label{display:block;font-weight:750}
-input{width:100%;padding:10px 12px;margin:5px 0 12px;min-height:48px;background:#fffcf1;color:var(--ink);border:1px solid #7b826e;border-radius:0;font:inherit}
 .actions{display:flex;gap:8px;flex-wrap:wrap}
 button{font:800 14px/1.3 system-ui,sans-serif;padding:8px 12px;min-height:48px;color:#fffdf3;background:#304435;border:1px solid #253529;border-radius:0;box-shadow:2px 2px 0 #293a2c20;cursor:pointer}
 button:hover{background:#25372a}
@@ -32,7 +30,8 @@ button:disabled{opacity:.65;cursor:wait}
 a{color:var(--green);font-weight:750;text-underline-offset:3px}
 blockquote{border-left:3px solid var(--red);padding:6px 12px;margin:12px 0;background:#e7e6da;font:700 17px/1.4 Georgia,serif}
 [role=status]{color:#414c40;margin:12px 0 0}
-[role=status]:empty,#reports:empty{display:none}
+[role=status]:empty{margin:0}
+#reports:empty{display:none}
 #reports{padding-left:0;list-style:none;margin:12px 0 0}
 #reports li{border-top:1px solid var(--line);padding:9px 0}
 @media(max-width:440px){.actions button{flex:1 1 100%}}
@@ -44,10 +43,12 @@ blockquote{border-left:3px solid var(--red);padding:6px 12px;margin:12px 0;backg
 <header class="nav"><div class="navBrand"><svg class="agencyIcon" aria-hidden="true" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 16 4l13 7H3Zm1 16h24M3 30h26M7 13v11m6-11v11m6-11v11m6-11v11"/></svg><span><small class="agencyLabel">MADKLUBBENS PRÆSIDIUM · DIREKTORAT 01</small><strong>DEN NATIONALE BROKKOMMISSION</strong></span></div></header>
 <p class="dossierTop">MADKLUBBENS KORRESPONDANCE</p>
 <h1>Kontrolcentralen</h1>
+<section class="panel" id="invitation" hidden>
+<h2>Åbn dit invitationslink</h2>
+<p id="invitationHelp"></p>
+</section>
 <section class="panel" id="member" hidden>
 <h2>Madklubbens meldinger</h2>
-<label for="memberCode">Madklubbens adgangskode</label>
-<input id="memberCode" type="password" autocomplete="off" spellcheck="false">
 <div class="actions">
 <button id="read" type="button">Vis meldinger</button>
 <button class="outline" id="on" type="button">Slå notifikationer til</button>
@@ -61,8 +62,6 @@ blockquote{border-left:3px solid var(--red);padding:6px 12px;margin:12px 0;backg
 <p>Madklubben får denne besked fra Kammerat Mårten.</p>
 <blockquote>Der er en ny melding i Kontrolcentralen.</blockquote>
 <p>På Kontrolcentralen vises tidspunktet for din melding.</p>
-<label for="authorCode">Din afsenderkode</label>
-<input id="authorCode" type="password" autocomplete="off" spellcheck="false">
 <button id="send" type="button">Send melding til madklubben</button>
 <p id="authorStatus" role="status"></p>
 </section>
