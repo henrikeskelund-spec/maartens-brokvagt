@@ -1,0 +1,20 @@
+{
+  "name": "Mårtens Brokvagt",
+  "short_name": "Brokvagten",
+  "description": "Måren Mårten giver et dagligt historisk brok-fact og hjælper med en plan hos lægen.",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#faf6ee",
+  "theme_color": "#f8f3eb",
+  "lang": "da",
+  "icons": [
+    {
+      "src": "./assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
