@@ -1,4 +1,4 @@
-# Den Nationale Brokkommission – 3.1
+# Den Nationale Brokkommission – 3.2
 
 En satirisk webapp fra madklubben, målrettet Jonas. Kommissionsformand Mårten leverer 31 daglige bureaukratiske henvendelser og 31 kildebelagte historiske brok-facts.
 
@@ -23,3 +23,5 @@ Kommissionen er fiktiv og ikke en offentlig myndighed. Appen kan ikke vurdere pe
 Statiske HTML/CSS/JavaScript-filer uden backend eller eksterne biblioteker. GitHub Pages, webmanifest og service worker. Version 3.1 bevarer den tidligere localStorage-nøgle.
 
 Version 3.1: Lys, minimalistisk myndighedsskabelon efter den godkendte skitse. Originalt portræt af Mårten i fiktiv uniform. Kvitteringsprotokollen findes under Sagsmappe.
+
+Version 3.2: Central indeholder lægekontakt og sagsstatus. Efterretning er en lokal, voksende journal med fiktive dagsrapporter og faktisk registrerede kvitteringer/statusændringer. Sagsmappe indeholder de 31 historiske facts og kilder. Journalen beregnes ved åbning, ikke via baggrundsovervågning, og viser højst 366 seneste kalenderdage.
