@@ -1,13 +1,13 @@
 {
-  "name": "Mårtens Brokvagt",
-  "short_name": "Brokvagten",
-  "description": "Måren Mårten giver et dagligt historisk brok-fact og hjælper med en plan hos lægen.",
+  "name": "Den Nationale Brokkommission",
+  "short_name": "Brokkommission",
+  "description": "Madklubbens satiriske brokkommission med Mårten og Jonas.",
   "id": "./",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#faf6ee",
-  "theme_color": "#f8f3eb",
+  "background_color": "#eae7da",
+  "theme_color": "#29392d",
   "lang": "da",
   "icons": [
     {
