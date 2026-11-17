@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<meta name="theme-color" content="#29392d" />
+<meta name="theme-color" content="#eeefea" />
 <link rel="manifest" href="./manifest.webmanifest" />
 <link rel="icon" href="./assets/icon.svg" />
 <meta name="description" content="Satirisk myndighedsapp fra madklubben. Mårten giver Jonas en daglig historisk efterretning." />
@@ -131,7 +131,7 @@ main{width:min(100%,760px);padding:18px 16px calc(100px + env(safe-area-inset-bo
 .docket .caseNote{font-size:12px;color:#282c27}
 #screen-home>.sectionHead{display:none}
 .historyCard{background:#f9f9f6;border:0;border-radius:7px;box-shadow:none;padding:13px;margin:0 0 12px}
-.historyCard .eyebrow{font:400 10px/1.4 system-ui,sans-serif;color:#747871;letter-spacing:0}
+.historyCard .eyebrow{font:400 10px/1.4 system-ui,sans-serif;color:#646860;letter-spacing:0}.factHeading{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:5px}.factHeading small{font:inherit}
 .historyCard h2{font:650 16px/1.35 system-ui,sans-serif;color:#202520;margin:7px 0}
 .historyCard p{font-size:14px;line-height:1.55;margin:6px 0 9px;color:#272b26}
 .historyCard a{color:#5d685a;font-size:11px;line-height:1.5;font-weight:500;overflow-wrap:anywhere}
@@ -167,7 +167,7 @@ main{width:min(100%,760px);padding:18px 16px calc(100px + env(safe-area-inset-bo
 </section>
 <div class="sectionHead"><strong>DAGENS HISTORISKE EFTERRETNING</strong><small id="dateLabel"></small></div>
 <section class="historyCard" aria-live="polite">
-  <div class="eyebrow">AFKLASSIFICERET · HISTORISK ARKIV</div>
+  <div class="eyebrow factHeading">HISTORISK EFTERRETNING</div>
   <h2 id="historyTitle"></h2><p id="historyBody"></p>
   <a id="historySource" target="_blank" rel="noopener noreferrer" href="#"></a>
   <div class="historyFoot" id="historyFoot">En ny fact hver kalenderdag. 31 på rotation.</div>
@@ -292,7 +292,7 @@ if ('serviceWorker' in navigator && location.protocol === 'https:') {
  // Brandheader remains outside tabs. The other sections are moved, never duplicated.
  const welcome=document.createElement('div');welcome.className='homeWelcome';welcome.innerHTML='<div class="caseRow"><span>Sagsnr. JONAS-001</span><span id="caseBadge" class="caseBadge">SAG UAFSLUTTET</span></div>';
  screens.home.append(welcome);add('home',[3]);
- const docket=document.createElement('div');docket.className='docket';docket.innerHTML='<small>SAGSBEHANDLINGSTID</small><b id="caseCount">0 DAGE</b><strong id="caseLevel">ALMINDELIG SAGSBEHANDLING</strong><span class="caseNote" id="caseNote">Uden registreret behandlingsplan · dage siden oprettelse.</span>';screens.home.append(docket);add('home',[4,5,7,8]);renderCase();
+ const docket=document.createElement('div');docket.className='docket';docket.innerHTML='<small>SAGSBEHANDLINGSTID</small><b id="caseCount">0 DAGE</b><strong id="caseLevel">ALMINDELIG SAGSBEHANDLING</strong><span class="caseNote" id="caseNote">Uden registreret behandlingsplan · dage siden oprettelse.</span>';screens.home.append(docket);add('home',[4,5,7,8]);children[5].querySelector('.factHeading').append(children[4].querySelector('#dateLabel'));renderCase();
  screens.history.innerHTML='<h1 class="screenTitle">Historiske efterretninger</h1><p class="screenSubtitle">Et nyt historisk nedslag hver kalenderdag. Fra oldtidens metoder til moderne brokkirurgi. Alle historier har kilde.</p>';
  add('history',[9,10]);
  screens.status.innerHTML='<h1 class="screenTitle">Sagsmappe JONAS-001</h1><p class="screenSubtitle">Sagens formål: En konkret aftale med lægen. Kommissionen accepterer både en operationsdato og en lægefaglig aftale om at afvente.</p>';
