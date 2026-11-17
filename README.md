@@ -1,4 +1,4 @@
-# Mårtens Brokvagt – designversion 2.2
+# Mårtens Brokvagt – designversion 2.3
 
 En mobilvenlig webapp med Mårten som maskot, 31 kildebelagte historiske brok-facts, kvittering til madklubben og status på lægens behandlingsplan.
 
@@ -10,7 +10,7 @@ En mobilvenlig webapp med Mårten som maskot, 31 kildebelagte historiske brok-fa
 
 ## Privatliv
 
-Ingen portrætfoto, fuldt navn eller helbredsoplysninger om Jonas offentliggøres. Personlige indstillinger, lægestatus og kvitteringer lagres lokalt i brugerens browser (`localStorage`). Intet sendes automatisk til madklubben; brugeren vælger selv afsendelse i delingsmenuen.
+Appen bruger fornavnet Jonas som fast tiltale. Intet portrætfoto, efternavn eller individuelle helbredsoplysninger offentliggøres. Lægestatus og kvitteringer lagres lokalt i brugerens browser (`localStorage`). Intet sendes automatisk til madklubben; brugeren vælger selv afsendelse i delingsmenuen.
 
 ## Begrænsninger
 
@@ -18,4 +18,4 @@ Der er 31 forskellige facts, der roterer med månedens dato. Appen skifter fact 
 
 ## Udvikling
 
-Statiske HTML/CSS/JavaScript-filer, webmanifest og service worker. Ingen eksterne biblioteker eller backend. Version 2.2 tilpasset det godkendte visuelle design med fanerne Hjem, Historie, Status og Mere.
+Statiske HTML/CSS/JavaScript-filer, webmanifest og service worker. Ingen eksterne biblioteker eller backend. Version 2.3 tilpasset det godkendte visuelle design med fanerne Hjem, Historie, Status og Mere.
