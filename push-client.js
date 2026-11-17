@@ -8,17 +8,20 @@ function read(){try{return JSON.parse(localStorage.getItem(storeKey)||'{}')}catc
 function write(value){localStorage.setItem(storeKey,JSON.stringify(value));}
 function token(){return Array.from(crypto.getRandomValues(new Uint8Array(32)),b=>b.toString(16).padStart(2,'0')).join('')}
 function keyBytes(s){const p=s.replace(/-/g,'+').replace(/_/g,'/');return Uint8Array.from(atob(p+'='.repeat((4-p.length%4)%4)),c=>c.charCodeAt(0))}
-const closed=()=>window.isBrokPlanRegistered?.()===true;
+const closed=()=>{try{return ['booked','operated','fit','watching'].includes(JSON.parse(localStorage.getItem('maartens-brokvagt-pages-v1')||'{}').status);}catch{return window.isBrokPlanRegistered?.()===true;}};
+const inviteKey='brokkommission-correspondence-invitation';
+const invitation=()=>{try{return localStorage.getItem(inviteKey)||''}catch{return ''}};
 let busy=false;
 function report(message){$('pushStatus').textContent=message}
 function paint(){
  const state=read();
- $('pushEnable').disabled=busy||!supported()||!configured()||closed()||state.active===true||state.pending===true;
+ $('pushEnable').disabled=busy||!supported()||!configured()||closed()||state.active===true||state.pending===true||!invitation();
  $('pushDisable').disabled=busy||(!state.active&&!state.pending&&!state.token);
  if(!configured())report('Korrespondancekontoret afventer idriftsættelse.');
  else if(!supported())report('Anvend en understøttet, installeret webapp. På iPhone: Føj til hjemmeskærm.');
  else if(state.pending)report('Afmelding afventer forbindelse. Der forsøges igen, når appen er online.');
  else if(closed())report('Korrespondancen er indstillet i medfør af den registrerede plan.');
+ else if(!invitation())report('Korrespondanceaktivering kræver kommissionens personlige indbydelseslink.');
  else if(state.active&&Notification.permission==='granted')report('OFFICIEL KORRESPONDANCE AKTIV · 09.00 / 13.00 / 18.00');
  else if(Notification.permission==='denied')report('Notifikationer er slået fra i telefonens indstillinger.');
  else report('KORRESPONDANCE IKKE AKTIVERET');
@@ -46,7 +49,7 @@ async function stop(){
  try{await unregister()}catch{report('Afmeldingen kunne ikke gemmes. Prøv igen.');}finally{busy=false;paint()}
 }
 async function start(){
- if(busy||closed()||!supported()||!configured()||read().pending)return;
+ if(busy||closed()||!supported()||!configured()||read().pending||!invitation())return;
  busy=true;paint();
  let succeeded=false;
  try{
@@ -66,7 +69,7 @@ async function start(){
   }
   sub=sub||await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:desired});
   if(closed()){await unregister();return}
-  await request('/subscribe',{token:t,subscription:sub.toJSON()});
+  await request('/subscribe',{token:t,invitation:invitation(),subscription:sub.toJSON()});
   if(closed()){await unregister();return}
   write({token:t,active:true,pending:false});succeeded=true;
  }catch(err){
