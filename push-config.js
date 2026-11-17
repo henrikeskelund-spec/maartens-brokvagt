@@ -1,2 +1,2 @@
-// Set to the deployed HTTPS Worker origin after provisioning.
-window.BROK_PUSH_ENDPOINT = '';
+// Cloudflare Worker for official correspondence.
+window.BROK_PUSH_ENDPOINT = 'https://brokkommission-push.henrikeskelund.workers.dev';
