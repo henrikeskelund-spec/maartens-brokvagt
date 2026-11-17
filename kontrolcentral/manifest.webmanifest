@@ -1,0 +1,17 @@
+{
+  "name": "Den Nationale Brokkommissions Kontrolcentral",
+  "short_name": "Kontrolcentralen",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#151912",
+  "theme_color": "#242b1e",
+  "icons": [
+    {
+      "src": "../assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
