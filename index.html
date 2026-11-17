@@ -135,7 +135,7 @@ main{width:min(100%,760px);padding:18px 16px calc(100px + env(safe-area-inset-bo
 .historyCard h2{font:650 16px/1.35 system-ui,sans-serif;color:#202520;margin:7px 0}
 .historyCard p{font-size:14px;line-height:1.55;margin:6px 0 9px;color:#272b26}
 .historyCard a{color:#5d685a;font-size:11px;line-height:1.5;font-weight:500;overflow-wrap:anywhere}
-.historyFoot{display:none}.historyActions{margin-bottom:12px}
+.historyFoot{display:none}.historyFoot.previewVisible{display:block;color:#9f3c2c;font-weight:700}.historyActions{margin:14px 0 8px}.historyActions button{border-radius:6px;background:transparent;border-color:#c9cbc3;font-size:11px;font-weight:500}.receiptPanel{margin-top:14px}.receiptPanel h2{font-size:16px;margin:0}.receiptPanel .ackStats{display:flex}
 .ackCard{background:transparent;border:0;border-radius:0;box-shadow:none;padding:0;margin:0}
 #screen-home .ackHeader,#screen-home .ackCard>.baseText,#screen-home .ackStats{display:none}
 #screen-home .ackCard>.btn{margin:0;border-radius:6px;font-size:13px;font-weight:700;background:#2c3b31;border:0;box-shadow:none}
@@ -250,7 +250,7 @@ function renderHistory(){const {fact,date}=currentFact();setText('historyTitle',
 setText('dateLabel',`${date.toLocaleDateString('da-DK',{day:'numeric',month:'long'}).toUpperCase()} · ${fact.day}/31`);
 el('historySource').href=fact.sourceUrl;setText('historySource',`Kilde: ${fact.sourceName} ↗`);
 setText('historyFoot',demoOffset?'Dette er en prøvevisning. I morgen skifter appen automatisk.':'En ny fact hver kalenderdag. 31 på rotation.');
-el('resetDate').classList.toggle('hidden',!demoOffset);}
+el('resetDate').classList.toggle('hidden',!demoOffset);el('historyFoot').classList.toggle('previewVisible',!!demoOffset);}
 function renderStatus(){const done=status==='booked'||status==='watching';const titles={pending:'{{NAVN}}: SAG UAFSLUTTET',contacted:'LÆGE KONTAKTET',booked:'OPERATIONSDATO REGISTRERET',watching:'LÆGEFAGLIG AFVENTNING AFTALT'};const desc={pending:'Få vurderet hos lægen, om brokket skal opereres, eller om det er forsvarligt at afvente.',contacted:'Følg op, til du har en konkret plan fra lægen.',booked:'Kommissionen indstiller de daglige henvendelser. Det historiske arkiv er stadig åbent.',watching:'Kommissionen indstiller de daglige henvendelser. Det historiske arkiv er stadig åbent.'};setText('statusTitle',titles[status]||titles.pending);setText('statusText',desc[status]||desc.pending);
 el('statusDot').style.background=done?'var(--green)':'var(--gold)';setText('missionStatus',done?'AFSLUTTET':'UAFSLUTTET');el('statusButtons').classList.toggle('hidden',done);el('finishButtons').classList.toggle('hidden',!done);el('reminderSection').classList.toggle('hidden',done);el('contacted').classList.toggle('hidden',status==='contacted');
 el('certificate').classList.toggle('hidden',!done);
@@ -294,9 +294,10 @@ if ('serviceWorker' in navigator && location.protocol === 'https:') {
  screens.home.append(welcome);add('home',[3]);
  const docket=document.createElement('div');docket.className='docket';docket.innerHTML='<small>SAGSBEHANDLINGSTID</small><b id="caseCount">0 DAGE</b><strong id="caseLevel">ALMINDELIG SAGSBEHANDLING</strong><span class="caseNote" id="caseNote">Uden registreret behandlingsplan · dage siden oprettelse.</span>';screens.home.append(docket);add('home',[4,5,7,8]);renderCase();
  screens.history.innerHTML='<h1 class="screenTitle">Historiske efterretninger</h1><p class="screenSubtitle">Et nyt historisk nedslag hver kalenderdag. Fra oldtidens metoder til moderne brokkirurgi. Alle historier har kilde.</p>';
- add('history',[6,9,10]);
+ add('history',[9,10]);
  screens.status.innerHTML='<h1 class="screenTitle">Sagsmappe JONAS-001</h1><p class="screenSubtitle">Sagens formål: En konkret aftale med lægen. Kommissionen accepterer både en operationsdato og en lægefaglig aftale om at afvente.</p>';
  add('status',[11,12]);
+ const receiptStats=children[8].querySelector('.ackStats');const receiptPanel=document.createElement('section');receiptPanel.className='panel receiptPanel';receiptPanel.innerHTML='<h2>Kvitteringsprotokol</h2><p class="baseText">Din egen lokale journal over modtagne henvendelser. Ingen ekstern overvågning.</p>';receiptPanel.append(receiptStats);screens.status.append(receiptPanel);
  screens.more.innerHTML='<h1 class="screenTitle">Kommissionens forvaltning</h1><p class="screenSubtitle">Praktisk information, sundhedsfaglige kilder og fortrolighed. Ingen myndighedsstatus.</p>';
  add('more',[2,13,14,15,16,17,18]);
  const notice=document.createElement('div');notice.className='helperLine';notice.textContent='Webappen viser en ny historisk fact hver dag, når du åbner den. Automatiske baggrundsnotifikationer kræver en separat mobil- eller pushløsning.';screens.more.insertBefore(notice,screens.more.children[2]);
@@ -316,7 +317,7 @@ if ('serviceWorker' in navigator && location.protocol === 'https:') {
   try{history.replaceState(null,'','#'+view)}catch(e){}
   window.scrollTo({top:0,behavior:'instant'});
  }
- const foot=document.createElement('p');foot.className='commissionFoot';foot.textContent='Madklubben er ikke en myndighed. Mårten tror, han er.';screens.home.append(foot);
+ const foot=document.createElement('p');foot.className='commissionFoot';foot.textContent='Madklubben er ikke en myndighed. Mårten tror, han er.';screens.home.append(foot);add('home',[6]);
  const hash=location.hash.replace('#','');show(screens[hash]?hash:'home');
  window.addEventListener('hashchange',()=>{const next=location.hash.replace('#','');if(screens[next])show(next)});
 })();
