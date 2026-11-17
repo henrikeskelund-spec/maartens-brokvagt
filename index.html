@@ -148,7 +148,9 @@ main{width:min(100%,760px);padding:18px 16px calc(100px + env(safe-area-inset-bo
 .screenTitle{font-family:system-ui,sans-serif;font-weight:700;letter-spacing:-.4px}
 @media(max-width:365px){main{padding-left:12px;padding-right:12px}.martenCard{grid-template-columns:84px 1fr;gap:10px}.martenText{font-size:12px}.navBrand strong{font-size:13px}.bottomNav button{font-size:9px}}
 </style>
-</head>
+<style id="design32">
+.intelKicker,.intelMeta{font-size:10px;font-weight:750;letter-spacing:.7px;color:#656b61}.intelKicker{margin:0 0 9px}.intelSummary{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}.intelSummary small{display:block;font-size:10px;color:#62675f;font-weight:750;letter-spacing:.3px}.intelSummary strong{display:block;font-size:24px;font-weight:650;color:#2b3b31;margin-top:6px}.intelSummary div:first-child strong{color:#9b392a}.intelList{border-left:1px solid #aeb6a8;margin:0 0 0 7px;padding-left:16px}.intelEntry{position:relative;padding:0 0 19px;margin:0 0 16px;border-bottom:1px solid #c9cbc3}.intelEntry:before{content:"";position:absolute;top:4px;left:-21px;width:9px;height:9px;background:#2b3b31;border-radius:50%;border:2px solid #eeefea}.intelEntry h2{font:700 16px/1.3 system-ui,sans-serif;margin:7px 0;color:#232723}.intelEntry p{font-size:14px;line-height:1.55;margin:5px 0 8px}.intelFiction{font-size:9px;color:#656b61;letter-spacing:.4px}.intelActual{margin-top:8px;background:#dce7da;padding:7px 9px;border-radius:4px;color:#294534;font-size:12px;line-height:1.45}#screen-home>.sectionHead:has(+.panel){display:flex}#screen-home>.panel{margin-bottom:14px}#screen-home .statusLine{font:700 18px/1.3 system-ui,sans-serif}#screen-home .panel .baseText{font-size:13px}#screen-home .btn.green{border-radius:6px}#screen-home .ackCard{margin-top:14px}
+</style></head>
 <body>
 <div class="demoBanner">WEBAPP · Historisk fact skifter hver dag · Telefonnotifikationer kræver mobilappen</div>
 <main>
@@ -227,18 +229,81 @@ main{width:min(100%,760px);padding:18px 16px calc(100px + env(safe-area-inset-bo
 const data=JSON.parse(document.getElementById('content').textContent);
 const el=id=>document.getElementById(id);
 const displayName='Jonas';
-let status='pending',hour=9,nudgeIndex=-1,demoOffset=0,seenDays=[],caseOpened=dayKey(new Date()),caseClosed='';
-try{const saved=JSON.parse(localStorage.getItem('maartens-brokvagt-pages-v1')||'{}');status=['pending','contacted','booked','watching'].includes(saved.status)?saved.status:'pending';hour=saved.hour||9;seenDays=Array.isArray(saved.seenDays)?saved.seenDays.filter(x=>/^\d{4}-\d{2}-\d{2}$/.test(x)):[];if(validDate(saved.caseOpened))caseOpened=saved.caseOpened;if(validDate(saved.caseClosed))caseClosed=saved.caseClosed;}catch(e){}
-function save(){try{localStorage.setItem('maartens-brokvagt-pages-v1',JSON.stringify({status,hour,seenDays,caseOpened,caseClosed}))}catch(e){}}
+let status='pending',hour=9,nudgeIndex=-1,demoOffset=0,seenDays=[],caseOpened=dayKey(new Date()),caseClosed='',journalStart=caseOpened,statusEvents=[];
+try{const saved=JSON.parse(localStorage.getItem('maartens-brokvagt-pages-v1')||'{}');status=['pending','contacted','booked','watching'].includes(saved.status)?saved.status:'pending';hour=saved.hour||9;seenDays=Array.isArray(saved.seenDays)?saved.seenDays.filter(x=>/^\d{4}-\d{2}-\d{2}$/.test(x)):[];if(validDate(saved.caseOpened))caseOpened=saved.caseOpened;if(validDate(saved.caseClosed))caseClosed=saved.caseClosed;journalStart=validDate(saved.journalStart)?saved.journalStart:caseOpened;statusEvents=Array.isArray(saved.statusEvents)?saved.statusEvents.filter(e=>e&&validDate(e.date)&&['pending','contacted','booked','watching'].includes(e.status)):[];}catch(e){}
+function save(){try{localStorage.setItem('maartens-brokvagt-pages-v1',JSON.stringify({status,hour,seenDays,caseOpened,caseClosed,journalStart,statusEvents}))}catch(e){}}
 function dayKey(date){return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;}
 function validDate(x){return typeof x==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(x)&&Number.isFinite(Date.parse(x));}
 function caseDays(){const end=caseClosed||dayKey(new Date());return Math.max(0,Math.floor((Date.parse(end)-Date.parse(caseOpened))/86400000));}
 function renderCase(){if(!el('caseCount'))return;const done=status==='booked'||status==='watching';setText('caseCount',done?'AFSLUTTET':caseDays()+' DAGE');setText('caseBadge',done?'PLAN REGISTRERET':'SAG UAFSLUTTET');el('caseBadge').classList.toggle('closed',done);setText('caseNote',done?'Sagen om at få en plan er afsluttet.':'Uden registreret behandlingsplan · dage siden oprettelse.');setText('caseLevel',done?'PLAN REGISTRERET':caseDays()>=14?'EKSTRAORDINÆRT UDVALG':caseDays()>=7?'UDVIDET PAPIRARBEJDE':'ALMINDELIG SAGSBEHANDLING');}
+
+const dailyReports=[
+['Operation Jonas iværksat','En sagsmappe er oprettet. Kommissionsformanden har talt sine poter og erklæret mødet beslutningsdygtigt.'],
+['Foreløbig redegørelse','Mårten har nedsat et underudvalg. Medlemmer: én mår og en grankogle uden stemmeret.'],
+['Aktindsigt i tålmodigheden','Materialet er modtaget. Det fylder væsentligt mindre end forventet.'],
+['Ringmappe under observation','En ekstra ringmappe står klar. Den afventer en anledning til at blive åbnet.'],
+['Uventet administrativ stilstand','Kommissionen har gennemført en skrivebordsøvelse. Skrivebordet bestod.'],
+['International mårkontakt','En delegation fra skoven er inviteret. Ingen har svaret, muligvis fordi de er dyr.'],
+['Udvidet sagsbehandling','Mårten har bevilget sig selv en ekstra sekretær. Han har tegnet den på et stykke papir.'],
+['Notat om notatet','Et notat er udarbejdet vedrørende behovet for endnu et notat.'],
+['Beredskabsøvelse i brevbakken','Kommissionens brevbakke er blevet flyttet otte centimeter. Driften er genoptaget.'],
+['Ekstraordinær kaffebevilling','Mødet er forlænget. Agernkopperne er fyldt op.'],
+['Revision af kommissionsformanden','Mårten har godkendt sin egen indsats. Revisionen var kort.'],
+['Tavshedsprotokol','Grankoglen har fortsat ikke udtalt sig til sagen.'],
+['Embedsværkets kapacitet','Der er opsat et ekstra skilt på kontoret. Det står der nu.'],
+['Ekstraordinært udvalg','Der er bestilt to ekstra stole. Begge er reserveret til Mårtens hale.'],
+['Fortrolig skovrapport','Kommissionsformanden har inspiceret et træ. Træet har ikke afgivet forklaring.'],
+['Nyt strategipapir','Kommissionens strategi er blevet reduceret til tre ord: Tal med lægen.'],
+['Kontrol af stempelfunktionen','Stemplet virker. Mårten har stemplet denne konstatering.'],
+['Protokol om protokollen','En protokol er oprettet for at kontrollere, at protokollen eksisterer.'],
+['Mødeforberedende møde','Der er afholdt møde om, hvorvidt næste møde kræver et formøde.'],
+['Årlig pelsrevision','Kommissionens pels er gennemgået. Der er ingen administrative anmærkninger.'],
+['Indkøb af papirclips','Indkøbet er godkendt. Mårten har besluttet at holde en tale om det.'],
+['Ministeriel korrespondance','Et brev til den fiktive minister for unødvendige udvalg er blevet klargjort.'],
+['Fornyet mandat','Mårten har fornyet sit eget mandat med et enstemmigt poteflertal.'],
+['Særlig undersøgelse','Kommissionen undersøger, om dens egne undersøgelser er blevet for omfattende.'],
+['Mårens årsberetning','Beretningen er foreløbig på 84 sider. Konklusionen er på én linje.'],
+['Sagsmappe inspiceret','Mappen ligger fortsat på skrivebordet. Den er meget officiel.'],
+['Kontorplante hørt','Kontorplanten blev inviteret til at udtale sig. Den valgte at vokse.'],
+['Diplomatisk note','Kommissionen anerkender stadig lægefaglig afventning som en fuldgyldig plan.'],
+['Skovens observationspost','En pind er blevet udpeget som midlertidig observationspost.'],
+['Materielstatus','Tre blyanter, to ringmapper og én mår er meldt operative.'],
+['Månedlig redegørelse','Kommissionen har genfundet sin kalender. Den er nu klar til endnu en runde.']
+];
+const eventLabels={pending:'Sagen genåbnet',contacted:'Lægekontakt registreret',booked:'Operationsdato registreret',watching:'Afventning aftalt med lægen'};
+function renderJournal(){
+ const list=el('intelList');if(!list)return;
+ const today=dayKey(new Date()),done=status==='booked'||status==='watching';
+ const end=done&&caseClosed?caseClosed:today;
+ const start=journalStart<=today?journalStart:today;
+ const span=Math.max(0,Math.floor((Date.parse(end)-Date.parse(start))/86400000));
+ const days=span+1;
+ const receiptSet=new Set(seenDays);
+ const counts=[...receiptSet].filter(d=>d>=start&&d<=end).length;
+ setText('intelDays',days+' '+(days===1?'dag':'dage'));
+ setText('intelReceipts',counts+' af '+days);
+ list.replaceChildren();
+ const limit=Math.min(days,366);
+ for(let i=span;i>span-limit;i--){
+ const date=new Date(Date.parse(start)+i*86400000).toISOString().slice(0,10);
+ const card=document.createElement('article');card.className='intelEntry';
+ const meta=document.createElement('div');meta.className='intelMeta';meta.textContent='DAG '+String(i+1).padStart(2,'0')+' · '+new Date(date+'T12:00:00').toLocaleDateString('da-DK',{day:'numeric',month:'long',year:'numeric'});
+ const title=document.createElement('h2');title.textContent=dailyReports[i%dailyReports.length][0];
+ const body=document.createElement('p');body.textContent=dailyReports[i%dailyReports.length][1];
+ const label=document.createElement('small');label.className='intelFiction';label.textContent='FIKTIV RAPPORT FRA MÅRTEN';
+ card.append(meta,title,body,label);
+ if(receiptSet.has(date)){const receipt=document.createElement('div');receipt.className='intelActual';receipt.textContent='✓ Jonas har kvitteret denne dag.';card.append(receipt);}
+ for(const event of statusEvents.filter(e=>e.date===date)){const line=document.createElement('div');line.className='intelActual';line.textContent='✓ '+eventLabels[event.status]+' · registreret af Jonas';card.append(line);}
+ list.append(card);
+ }
+ if(days>limit){const note=document.createElement('p');note.className='tiny';note.textContent='De seneste 366 kalenderdage vises. Samlet sagsperiode: '+days+' dage.';list.append(note);}
+}
+
 function countStreak(date){const found=new Set(seenDays);const d=new Date(date.getFullYear(),date.getMonth(),date.getDate());if(!found.has(dayKey(d)))d.setDate(d.getDate()-1);let n=0;while(found.has(dayKey(d))){n++;d.setDate(d.getDate()-1)}return n;}
 function dailyShareMessage(date){const fact=data.facts[date.getDate()-1];const day=date.toLocaleDateString('da-DK',{day:'numeric',month:'long',year:'numeric'});return `OFFICIEL (UOFFICIEL) MODTAGELSESKVITTERING\nDen Nationale Brokkommission · JONAS-001\n\nHilsen fra ${displayName} og kommissionsformand Mårten.\n\nJeg har set dagens prik den ${day}.\n\nDagens historiske brok-fact: ${fact.title}\n\nKommissionen kan journalføre dagens livstegn. Henvendelsen er læst; kvitteringen er ikke en erklæring om behandling.\n\nKilde: ${fact.sourceUrl}`;}
-function renderAcknowledgement(){const today=new Date();const seen=seenDays.includes(dayKey(today));setText('ackBadge',seen?'SET I DAG':'AFVENTER SVAR');setText('ackTitle',seen?'Kvittering journalført, {{NAVN}}.':'Jonas, kommissionen afventer en kvittering.');setText('ackBody',seen?'Du har kvitteret i dag. Du kan dele beskeden igen, hvis du ikke fik sendt den.':'Kvittér for dagens efterretning og orientér madklubben. Delingen er frivillig.');setText('ackTotal',String(new Set(seenDays).size));setText('ackStreak',String(countStreak(today)));setText('ackButton',seen?'GENFREMSEND KVITTERING':'KVITTÉR FOR MODTAGELSE');el('ackDot').style.background=seen?'var(--green)':'var(--gold)';}
+function renderAcknowledgement(){const today=new Date();const seen=seenDays.includes(dayKey(today));setText('ackBadge',seen?'SET I DAG':'AFVENTER SVAR');setText('ackTitle',seen?'Kvittering journalført, {{NAVN}}.':'Jonas, kommissionen afventer en kvittering.');setText('ackBody',seen?'Du har kvitteret i dag. Du kan dele beskeden igen, hvis du ikke fik sendt den.':'Kvittér for dagens henvendelse og orientér madklubben. Delingen er frivillig.');setText('ackTotal',String(new Set(seenDays).size));setText('ackStreak',String(countStreak(today)));setText('ackButton',seen?'GENFREMSEND KVITTERING':'KVITTÉR FOR MODTAGELSE');el('ackDot').style.background=seen?'var(--green)':'var(--gold)';}
 function showManualMessage(message){el('manualShare').classList.remove('hidden');el('messageText').value=message;}
-function acknowledgeAndShare(){const date=new Date();const key=dayKey(date);if(!seenDays.includes(key)){seenDays.push(key);save();}renderAcknowledgement();const message=dailyShareMessage(date);
+function acknowledgeAndShare(){const date=new Date();const key=dayKey(date);if(!seenDays.includes(key)){seenDays.push(key);save();}renderAcknowledgement();renderJournal();const message=dailyShareMessage(date);
  // Web Share kræver aktiv brugerhandling. Ingen skjult SMS eller fjernserver.
  if(navigator.share){navigator.share({title:'Dagens prik fra Mårten',text:message}).catch(()=>showManualMessage(message));}
  else showManualMessage(message);
@@ -258,7 +323,7 @@ setText('certBody',status==='booked'?'Kommissionen har modtaget Jonas’ egen re
 renderCase();renderNudge();}
 function renderNudge(){const today=new Date().getDate();const done=status==='booked'||status==='watching';const days=caseDays();const bureaucratic=days>=14?' Tillægsnotat: Der er nu indkaldt et ekstraordinært udvalg. De to ekstra stole er til min hale.':days>=7?' Tillægsnotat: Kommissionen har bevilget en ekstra ringmappe.':'';setText('martenSays',done?'{{NAVN}}. Kommissionen nedlægges. Jeg går tilbage i skoven. Efterretningerne forbliver tilgængelige.':data.nudges[(nudgeIndex<0?today-1:nudgeIndex)%data.nudges.length]+bureaucratic);}
 function renderTimes(){el('timeButtons').innerHTML='';[9,12,18,21].forEach(h=>{const b=document.createElement('button');b.type='button';b.className='pill'+(hour===h?' active':'');b.textContent=String(h).padStart(2,'0')+':00';b.onclick=()=>{hour=h;save();renderTimes();el('noticePreview').classList.add('hidden')};el('timeButtons').append(b);});}
-function setStatus(s){const wasDone=status==='booked'||status==='watching';status=s;const done=s==='booked'||s==='watching';if(done&&!wasDone)caseClosed=dayKey(new Date());if(!done&&wasDone){caseOpened=dayKey(new Date());caseClosed='';}save();renderStatus();}
+function setStatus(s){const wasDone=status==='booked'||status==='watching';if(s!==status)statusEvents.push({date:dayKey(new Date()),status:s});status=s;const done=s==='booked'||s==='watching';if(done&&!wasDone)caseClosed=dayKey(new Date());if(!done&&wasDone){caseOpened=dayKey(new Date());caseClosed='';}save();renderStatus();renderJournal();}
 el('ackButton').onclick=acknowledgeAndShare;
 el('printCert').onclick=()=>{if(status!=='booked'&&status!=='watching')return;document.body.classList.add('printCertificate');try{window.print()}finally{document.body.classList.remove('printCertificate')}};
 el('copyMessage').onclick=async()=>{const msg=el('messageText').value;try{await navigator.clipboard.writeText(msg);setText('shareHint','Beskeden er kopieret. Indsæt den nu i madklubbens chat. Ingen besked er sendt automatisk.');}catch(error){el('messageText').focus();el('messageText').select();setText('shareHint','Markeret til kopiering. Kopiér teksten manuelt og indsæt den i madklubbens chat.');}};
@@ -272,7 +337,7 @@ el('archiveButton').onclick=()=>{const open=el('archive').classList.toggle('hidd
 for(const fact of data.facts){const item=document.createElement('article');item.className='archiveFact';const number=document.createElement('b');number.textContent=String(fact.day).padStart(2,'0');const body=document.createElement('div');const title=document.createElement('h3');title.textContent=fact.title;const desc=document.createElement('p');desc.textContent=fact.body;const a=document.createElement('a');a.href=fact.sourceUrl;a.target='_blank';a.rel='noopener noreferrer';a.textContent='Læs kilden ↗';body.append(title,desc,a);item.append(number,body);el('archive').append(item);}
 setText('medicalDisclaimer',data.disclaimer);setText('emergencyText',data.emergency);
 save();renderHistory();renderStatus();renderTimes();renderAcknowledgement();
-let lastDay=new Date().getDate();setInterval(()=>{const day=new Date().getDate();if(day!==lastDay){lastDay=day;demoOffset=0;renderHistory();renderCase();renderNudge();renderAcknowledgement();el('manualShare').classList.add('hidden');}},60000);
+let lastDay=new Date().getDate();setInterval(()=>{const day=new Date().getDate();if(day!==lastDay){lastDay=day;demoOffset=0;renderHistory();renderCase();renderNudge();renderAcknowledgement();renderJournal();el('manualShare').classList.add('hidden');}},60000);
 </script>
 <script>
 if ('serviceWorker' in navigator && location.protocol === 'https:') {
@@ -284,23 +349,22 @@ if ('serviceWorker' in navigator && location.protocol === 'https:') {
  const main=document.querySelector('main'); const children=[...main.children];
  if(children.length<18) return;
  const screens={};
- for(const [key,label] of [['home','Kommandocentral'],['history','Efterretninger'],['status','Sagsbehandling'],['more','Forvaltning']]){
+ for(const [key,label] of [['home','Kommandocentral'],['history','Efterretning'],['status','Historisk sagsmappe'],['more','Forvaltning']]){
   const section=document.createElement('div');section.className='screen';section.id='screen-'+key;section.setAttribute('aria-label',label);main.append(section);screens[key]=section;
  }
  const add=(key,indices)=>{for(const i of indices){if(children[i])screens[key].append(children[i]);}};
  // Brandheader remains outside tabs. The other sections are moved, never duplicated.
  const welcome=document.createElement('div');welcome.className='homeWelcome';welcome.innerHTML='<div class="caseRow"><span>Sagsnr. JONAS-001</span><span id="caseBadge" class="caseBadge">SAG UAFSLUTTET</span></div>';
  screens.home.append(welcome);add('home',[3]);
- const docket=document.createElement('div');docket.className='docket';docket.innerHTML='<small>SAGSBEHANDLINGSTID</small><b id="caseCount">0 DAGE</b><strong id="caseLevel">ALMINDELIG SAGSBEHANDLING</strong><span class="caseNote" id="caseNote">Uden registreret behandlingsplan · dage siden oprettelse.</span>';screens.home.append(docket);add('home',[7,8]);children[5].querySelector('.factHeading').append(children[4].querySelector('#dateLabel'));renderCase();
- screens.history.innerHTML='<h1 class="screenTitle">Historiske efterretninger</h1><p class="screenSubtitle">Et nyt historisk nedslag hver kalenderdag. Fra oldtidens metoder til moderne brokkirurgi. Alle historier har kilde.</p>';
- add('history',[5,6,9,10]);
- screens.status.innerHTML='<h1 class="screenTitle">Sagsmappe JONAS-001</h1><p class="screenSubtitle">Sagens formål: En konkret aftale med lægen. Kommissionen accepterer både en operationsdato og en lægefaglig aftale om at afvente.</p>';
- add('status',[11,12]);
- const receiptStats=children[8].querySelector('.ackStats');const receiptPanel=document.createElement('section');receiptPanel.className='panel receiptPanel';receiptPanel.innerHTML='<h2>Kvitteringsprotokol</h2><p class="baseText">Din egen lokale journal over modtagne henvendelser. Ingen ekstern overvågning.</p>';receiptPanel.append(receiptStats);screens.status.append(receiptPanel);
+ const docket=document.createElement('div');docket.className='docket';docket.innerHTML='<small>SAGSBEHANDLINGSTID</small><b id="caseCount">0 DAGE</b><strong id="caseLevel">ALMINDELIG SAGSBEHANDLING</strong><span class="caseNote" id="caseNote">Uden registreret behandlingsplan · dage siden oprettelse.</span>';screens.home.append(docket);add('home',[11,12,7,8]);children[5].querySelector('.factHeading').append(children[4].querySelector('#dateLabel'));renderCase();
+ screens.history.innerHTML='<div class="intelKicker">JONAS-001 · INTERN JOURNAL</div><h1 class="screenTitle">Efterretningstjenesten</h1><p class="screenSubtitle">Kommissionsformandens daglige, fiktive rapporter. Journalen vokser dag for dag.</p><section class="panel intelSummary"><div><small>JOURNALPERIODE</small><strong id="intelDays">0 dage</strong></div><div><small>KVITTERINGER</small><strong id="intelReceipts">0 af 0</strong></div></section><div id="intelList" class="intelList"></div><p class="commissionFoot">FORTROLIGT · KUN FOR JONAS OG RELEVANTE MÅRER</p>';renderJournal();
+ screens.status.innerHTML='<h1 class="screenTitle">Sagsmappe JONAS-001</h1><p class="screenSubtitle">Historiske brok-facts og dokumentation. Et nyt historisk nedslag hver kalenderdag, med kilde.</p>';
+ add('status',[5,6,9,10]);
+ const receiptStats=children[8].querySelector('.ackStats');const receiptPanel=document.createElement('section');receiptPanel.className='panel receiptPanel';receiptPanel.innerHTML='<h2>Kvitteringsprotokol</h2><p class="baseText">Din egen lokale journal over modtagne henvendelser. Ingen ekstern overvågning.</p>';receiptPanel.append(receiptStats);screens.history.append(receiptPanel);
  screens.more.innerHTML='<h1 class="screenTitle">Kommissionens forvaltning</h1><p class="screenSubtitle">Praktisk information, sundhedsfaglige kilder og fortrolighed. Ingen myndighedsstatus.</p>';
  add('more',[2,13,14,15,16,17,18]);
  const notice=document.createElement('div');notice.className='helperLine';notice.textContent='Webappen viser en ny historisk fact hver dag, når du åbner den. Automatiske baggrundsnotifikationer kræver en separat mobil- eller pushløsning.';screens.more.insertBefore(notice,screens.more.children[2]);
- const historyWelcome=document.createElement('div');historyWelcome.className='helperLine';historyWelcome.textContent='Tip: Tryk på en kilde for at læse den oprindelige historiske forskning. Fortællingerne siger ikke noget om din individuelle risiko.';screens.history.insertBefore(historyWelcome,children[9]);
+ const historyWelcome=document.createElement('div');historyWelcome.className='helperLine';historyWelcome.textContent='Tip: Tryk på en kilde for at læse den oprindelige historiske forskning. Fortællingerne siger ikke noget om din individuelle risiko.';screens.status.insertBefore(historyWelcome,children[9]);
  // Keep original promo section hidden; its text is preserved in the source.
  add('more',[1]);
  const bottom=document.createElement('nav');bottom.className='bottomNav';bottom.setAttribute('aria-label','Primær navigation');
@@ -312,7 +376,8 @@ if ('serviceWorker' in navigator && location.protocol === 'https:') {
  function show(view){
   for(const [k,section] of Object.entries(screens)){const on=k===view;section.classList.toggle('active',on);section.setAttribute('aria-hidden',String(!on));}
   for(const b of bottom.querySelectorAll('button')){const on=b.dataset.view===view;b.classList.toggle('active',on);b.setAttribute('aria-current',on?'page':'false')}
-  if(view==='history' && document.getElementById('archive')?.classList.contains('hidden'))document.getElementById('archiveButton')?.click();
+  if(view==='history')renderJournal();
+  if(view==='status' && document.getElementById('archive')?.classList.contains('hidden'))document.getElementById('archiveButton')?.click();
   try{history.replaceState(null,'','#'+view)}catch(e){}
   window.scrollTo({top:0,behavior:'instant'});
  }
