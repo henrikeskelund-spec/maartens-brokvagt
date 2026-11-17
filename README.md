@@ -1,4 +1,4 @@
-# Den Nationale Brokkommission – 3.0
+# Den Nationale Brokkommission – 3.1
 
 En satirisk webapp fra madklubben, målrettet Jonas. Kommissionsformand Mårten leverer 31 daglige bureaukratiske henvendelser og 31 kildebelagte historiske brok-facts.
 
@@ -20,4 +20,6 @@ Kun fornavnet Jonas er fast tiltale. Ingen portrætfoto, efternavn eller konkret
 Kommissionen er fiktiv og ikke en offentlig myndighed. Appen kan ikke vurdere personlig risiko. Ikke alle brok skal opereres; lægens vurdering er afgørende. Søg akut lægehjælp ved alarmsignaler. En ny fact vises ved åbning hver dag; baggrundsnotifikationer kræver særskilt pushløsning eller native app.
 
 ## Teknik
-Statiske HTML/CSS/JavaScript-filer uden backend eller eksterne biblioteker. GitHub Pages, webmanifest og service worker. Version 3.0 bevarer den tidligere localStorage-nøgle.
+Statiske HTML/CSS/JavaScript-filer uden backend eller eksterne biblioteker. GitHub Pages, webmanifest og service worker. Version 3.1 bevarer den tidligere localStorage-nøgle.
+
+Version 3.1: Lys, minimalistisk myndighedsskabelon efter den godkendte skitse. Originalt portræt af Mårten i fiktiv uniform. Kvitteringsprotokollen findes under Sagsmappe.
