@@ -1,6 +1,6 @@
 import { buildPushPayload } from '@block65/webcrypto-web-push';
 import {slotFor,messageFor} from './schedule.mjs';
-const MAX_SUBSCRIPTIONS=20;
+const MAX_SUBSCRIPTIONS=8;
 const tokenPattern=/^[a-f0-9]{64}$/;
 const b64=/^[A-Za-z0-9_-]+$/;
 const allowedHosts=new Set(['fcm.googleapis.com','updates.push.services.mozilla.com','web.push.apple.com','wns2-par02p.notify.windows.com']);
@@ -55,13 +55,14 @@ async function handle(req,env){
     await env.DB.prepare('UPDATE subscription SET endpoint=?,p256dh=?,auth=? WHERE token_hash=?').bind(sub.endpoint,sub.keys.p256dh,sub.keys.auth,token).run();
     return reply(env,{ok:true});
   }
+  if(typeof body.invitation!=='string'||body.invitation.length>128||!env.ENROLLMENT_CODE||await hashToken(body.invitation)!==await hashToken(env.ENROLLMENT_CODE))return reply(env,{error:'invitation_required'},403);
   const result=await env.DB.prepare('INSERT OR IGNORE INTO subscription(endpoint,token_hash,p256dh,auth,created_at) SELECT ?,?,?,?,? WHERE (SELECT COUNT(*) FROM subscription) < ?').bind(sub.endpoint,token,sub.keys.p256dh,sub.keys.auth,Date.now(),MAX_SUBSCRIPTIONS).run();
   if(!result.meta.changes)return reply(env,{error:'subscription_unavailable'},409);
   return reply(env,{ok:true});
 }
 export async function sendSlot(env,slot){
   if(!env.VAPID_SERVER_PUBLIC_KEY||!env.VAPID_SERVER_PRIVATE_KEY||!env.VAPID_SUBJECT)throw new Error('Missing VAPID configuration');
-  const {results}=await env.DB.prepare('SELECT endpoint,token_hash,p256dh,auth FROM subscription WHERE last_slot<>? LIMIT 20').bind(slot.id).all();
+  const {results}=await env.DB.prepare('SELECT endpoint,token_hash,p256dh,auth FROM subscription WHERE last_slot<>? LIMIT 8').bind(slot.id).all();
   const message=messageFor(slot);
   for(const row of results){
     // Claim before send so a repeated scheduled invocation cannot resend the same directive.
