@@ -6,31 +6,57 @@
 <title>Kontrolcentralen · Den Nationale Brokkommission</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <style>
-:root{color-scheme:dark;font:17px/1.5 system-ui;background:#151912;color:#faf2d4}
-body{margin:0}main{max-width:36rem;margin:auto;padding:2rem 1rem}
-header{border-bottom:5px solid #c75042;padding-bottom:1rem}
-header p{margin:0;color:#e4ba69}h1{margin:.3em 0 0;font-size:clamp(2rem,8vw,3.5rem)}
-section{background:#242b1e;border:1px solid #85956d;padding:1rem;margin:1rem 0}
-label,input{display:block}input{box-sizing:border-box;width:100%;padding:.65rem;margin:.3rem 0 1rem}
-button{font:inherit;padding:.55rem .9rem;margin:0 .4rem .5rem 0;color:#171b12;background:#d7e3c6;border:0;cursor:pointer}
-button:disabled{opacity:.55;cursor:default}a{color:#f5cb7b}li{margin:.5rem 0}
+:root{--ink:#242a22;--card:#f4f1e7;--cream:#e7e6da;--red:#923b30;--green:#344637;--muted:#525b4e;--line:#a6aa98;color-scheme:light;font:16px/1.5 system-ui,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:#242823;color:var(--ink)}
+main{width:min(100%,760px);min-height:100vh;margin:auto;padding:18px clamp(16px,4vw,28px) 32px;background:repeating-linear-gradient(0deg,#20251807 0 1px,transparent 1px 5px),var(--cream)}
+.nav{border-bottom:2px solid #434e40;margin-bottom:17px;padding-bottom:15px}
+.navBrand{display:flex;align-items:center;gap:11px}
+.agencyIcon{flex:none;width:30px;height:30px}
+.agencyLabel,.dossierTop{font:700 10px/1.4 ui-monospace,Consolas,monospace;letter-spacing:.35px}
+.navBrand strong{display:block;font-size:clamp(13px,3.9vw,17px);line-height:1.25}
+.dossierTop{color:var(--muted);margin:0 0 5px}
+h1,h2{font-family:Georgia,serif;color:#2f4032}
+h1{font-size:clamp(30px,7vw,38px);line-height:1.08;margin:0 0 18px}
+h2{font-size:22px;line-height:1.2;margin:0 0 14px}
+.panel{background:var(--card);border:1px solid #aeb1a0;border-top:3px double #727d68;box-shadow:2px 2px 0 #303b2420;padding:clamp(14px,4vw,20px);margin:0 0 18px}
+label{display:block;font-weight:750}
+input{width:100%;padding:10px 12px;margin:5px 0 12px;min-height:48px;background:#fffcf1;color:var(--ink);border:1px solid #7b826e;border-radius:0;font:inherit}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+button{font:800 14px/1.3 system-ui,sans-serif;padding:8px 12px;min-height:48px;color:#fffdf3;background:#304435;border:1px solid #253529;border-radius:0;box-shadow:2px 2px 0 #293a2c20;cursor:pointer}
+button:hover{background:#25372a}
+button.outline{background:transparent;color:var(--green);border-color:#78816e}
+button.outline:hover{background:#e8e9d8}
+button:disabled{opacity:.65;cursor:wait}
+:focus-visible{outline:2px solid var(--red);outline-offset:3px}
+a{color:var(--green);font-weight:750;text-underline-offset:3px}
+blockquote{border-left:3px solid var(--red);padding:6px 12px;margin:12px 0;background:#e7e6da;font:700 17px/1.4 Georgia,serif}
+[role=status]{color:#414c40;margin:12px 0 0}
+[role=status]:empty,#reports:empty{display:none}
+#reports{padding-left:0;list-style:none;margin:12px 0 0}
+#reports li{border-top:1px solid var(--line);padding:9px 0}
+@media(max-width:440px){.actions button{flex:1 1 100%}}
 </style>
 <script defer src="../push-config.js"></script>
 <script defer src="./club.js"></script>
 </head>
 <body><main>
-<header><p>DEN NATIONALE BROKKOMMISSION</p><h1>Kontrolcentralen</h1></header>
-<section id="member" hidden>
+<header class="nav"><div class="navBrand"><svg class="agencyIcon" aria-hidden="true" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 16 4l13 7H3Zm1 16h24M3 30h26M7 13v11m6-11v11m6-11v11m6-11v11"/></svg><span><small class="agencyLabel">MADKLUBBENS PRÆSIDIUM · DIREKTORAT 01</small><strong>DEN NATIONALE BROKKOMMISSION</strong></span></div></header>
+<p class="dossierTop">MADKLUBBENS KORRESPONDANCE</p>
+<h1>Kontrolcentralen</h1>
+<section class="panel" id="member" hidden>
 <h2>Madklubbens meldinger</h2>
 <label for="memberCode">Madklubbens adgangskode</label>
 <input id="memberCode" type="password" autocomplete="off" spellcheck="false">
+<div class="actions">
 <button id="read" type="button">Vis meldinger</button>
-<button id="on" type="button">Slå notifikationer til</button>
-<button id="off" type="button">Slå notifikationer fra</button>
+<button class="outline" id="on" type="button">Slå notifikationer til</button>
+<button class="outline" id="off" type="button">Slå notifikationer fra</button>
+</div>
 <p id="memberStatus" role="status"></p>
 <ul id="reports"></ul>
 </section>
-<section id="author" hidden>
+<section class="panel" id="author" hidden>
 <h2>Meld status til madklubben</h2>
 <p>Madklubben får denne besked fra Kammerat Mårten.</p>
 <blockquote>Der er en ny melding i Kontrolcentralen.</blockquote>
@@ -40,6 +66,6 @@ button:disabled{opacity:.55;cursor:default}a{color:#f5cb7b}li{margin:.5rem 0}
 <button id="send" type="button">Send melding til madklubben</button>
 <p id="authorStatus" role="status"></p>
 </section>
-<a href="../">Tilbage til Central</a>
+<a href="../">‹ Tilbage til Central</a>
 </main></body>
 </html>
